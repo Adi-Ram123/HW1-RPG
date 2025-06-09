@@ -38,8 +38,8 @@ class RPGCharacter {
     var sp:Int
     var weaponType:Weapon
     var armorType:Armor
-    init(name:String) {
-        chName = name
+    init(character:String) {
+        chName = character
         weaponType = Weapon(weaponType: "none")
         armorType = Armor(armorType: "none")
         //Override
@@ -98,7 +98,7 @@ class RPGCharacter {
         } else {
             ac = armorType.NONE
         }
-        print("\tArmor Class: \(ac).")
+        print("\tArmor Class: \(ac)")
     }
 }
 
@@ -108,25 +108,23 @@ class RPGCharacter {
 class Fighter : RPGCharacter {
     let HP = 40
     let SP = 0
-    init(character:String) {
-        super.init(name: character)
+    init(name:String) {
+        super.init(character: name)
         hp = HP
         sp = SP
     }
-    func wield(weaponObject:String) {
-        if(WEAPONNAMES.contains(weaponObject)) {
-            let weapon = Weapon(weaponType: weaponObject)
-            weaponType = weapon
-            print("\(chName) is now wielding a(n) \(weaponObject)")
+    func wield(weaponObject:Weapon) {
+        if(WEAPONNAMES.contains(weaponObject.weapon)) {
+            weaponType = weaponObject
+            print("\(chName) is now wielding a(n) \(weaponObject.weapon)")
         } else {
             print("Weapon does not exist")
         }
     }
-    func putOnArmor(armorObject:String) {
-        if(ARMORNAMES.contains(armorObject)) {
-            let armor = Armor(armorType: armorObject)
-            armorType = armor
-            print("\(chName) is now wearing \(armorObject)")
+    func putOnArmor(armorObject:Armor) {
+        if(ARMORNAMES.contains(armorObject.armor)) {
+            armorType = armorObject
+            print("\(chName) is now wearing \(armorObject.armor)")
         } else {
             print("Armor does not exist")
         }
@@ -139,22 +137,21 @@ class Fighter : RPGCharacter {
 class Wizard : RPGCharacter {
     let HP = 16
     let SP = 20
-    let FIREBALL = 3
+    let FIREBALL = 5
     let LIGHTNINGBOLT = 10
     let HEAL = 6
     let FIREBALLSP = 3
     let LIGHTNINGBOLTSP = 10
     let HEALSP = 6
-    init(character:String) {
-        super.init(name: character)
+    init(name:String) {
+        super.init(character: name)
         hp = HP
         sp = SP
     }
-    func wield(weaponObject:String) {
-        if(WEAPONNAMES.contains(weaponObject) && ((weaponObject == "dagger") || weaponObject == "staff")) {
-            let weapon = Weapon(weaponType: weaponObject)
-            weaponType = weapon
-            print("\(chName) is now wielding a(n) \(weaponObject)")
+    func wield(weaponObject:Weapon) {
+        if(WEAPONNAMES.contains(weaponObject.weapon) && ((weaponObject.weapon == "dagger") || weaponObject.weapon == "staff")) {
+            weaponType = weaponObject
+            print("\(chName) is now wielding a(n) \(weaponObject.weapon)")
         } else {
             print("Weapon not allowed for this character class")
         }
@@ -164,9 +161,11 @@ class Wizard : RPGCharacter {
     }
     func castSpell(spellName:String, target:RPGCharacter){
         if(SPELLNAMES.contains(spellName)) {
+            print("\(chName) casts \(spellName) at \(target.chName)")
             if(spellName == "Fireball") {
                 if(sp >= FIREBALLSP) {
                     target.hp -= FIREBALL
+                    sp -= FIREBALLSP
                     print("\(chName) does \(FIREBALL) damage to \(target.chName)")
                     print("\(target.chName) is now down to \(target.hp) health")
                     checkForDefeat(character: target)
@@ -176,6 +175,7 @@ class Wizard : RPGCharacter {
             } else if(spellName == "Lightning Bolt") {
                 if(sp >= LIGHTNINGBOLTSP) {
                     target.hp -= LIGHTNINGBOLT
+                    sp -= LIGHTNINGBOLTSP
                     print("\(chName) does \(LIGHTNINGBOLT) damage to \(target.chName)")
                     print("\(target.chName) is now down to \(target.hp) health")
                     checkForDefeat(character: target)
@@ -186,19 +186,56 @@ class Wizard : RPGCharacter {
                 if(sp >= HEALSP) {
                     let oldHp = target.hp
                     target.hp = min(HP, target.hp + HEALSP)
+                    sp -= HEALSP
                     let healed = target.hp - oldHp
                     print("\(chName) heals \(target.chName) for \(healed) health points.")
-                    print("\(target) is now at \(target.hp) health")
+                    print("\(target.chName) is now at \(target.hp) health")
                 } else {
                     print("Insufficient spell points")
                 }
             }
         } else {
-            print("Unkown spell name. Spell failed.")
+            print("Unknown spell name. Spell failed.")
         }
     }
 }
 
-print("TEST")
+// top level code
 
+// Create one of each armor and weapon for use
+let plateMail = Armor(armorType:"plate")
+let chainMail = Armor(armorType:"chain")
+let sword = Weapon(weaponType:"sword")
+let staff = Weapon(weaponType:"staff")
+let axe = Weapon(weaponType:"axe")
 
+let gandalf = Wizard(name:"Gandalf the Grey")
+gandalf.wield(weaponObject:staff)
+
+let aragorn = Fighter(name:"Aragorn")
+aragorn.putOnArmor(armorObject:plateMail)
+aragorn.wield(weaponObject:axe)
+
+gandalf.show()
+aragorn.show()
+
+gandalf.castSpell(spellName:"Fireball",target:aragorn)
+aragorn.fight(opponent:gandalf)
+
+gandalf.show()
+aragorn.show()
+
+gandalf.castSpell(spellName:"Lightning Bolt",target:aragorn)
+aragorn.wield(weaponObject:sword)
+
+gandalf.show()
+aragorn.show()
+
+gandalf.castSpell(spellName:"Heal",target:gandalf)
+aragorn.fight(opponent:gandalf)
+
+gandalf.fight(opponent:aragorn)
+aragorn.fight(opponent:gandalf)
+
+gandalf.show()
+aragorn.show()
