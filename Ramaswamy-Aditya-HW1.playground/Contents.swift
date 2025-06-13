@@ -156,7 +156,7 @@ class Wizard : RPGCharacter {
             print("Weapon not allowed for this character class")
         }
     }
-    func putOnArmor(armorObject:String) {
+    func putOnArmor(armorObject:Armor) {
         print("Armor not allowed for this character class")
     }
     func castSpell(spellName:String, target:RPGCharacter){
